@@ -19,9 +19,20 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    to right,
+    #7f00ff,
+    #e100ff
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.card {
+  @apply relative block w-[400px] rounded-lg bg-white p-6 px-12 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)];
+}
+
+.card-title {
+  @apply mb-2 text-lg font-medium leading-tight text-neutral-800  text-center;
+}
+
+.card-content {
+  @apply mb-4 text-base text-neutral-600;
 }
