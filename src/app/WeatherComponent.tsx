@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { LoadingSpinner } from "./LoadingSpinner";
 import {
   WeatherDataReturn,
   requestWeatherFromAPI,
 } from "@/weather-api/getCurrentWeather";
+import { useEffect, useState } from "react";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 type CitiesSupported = "New York" | "Berlin";
 
@@ -40,14 +40,23 @@ export const WeatherComponent = ({
 
   useEffect(() => {
     setIsLoading(true);
+    let interval: number;
 
-    requestWeatherFromAPI(geoLocations[city].lat, geoLocations[city].lon)
-      .then((data) => {
-        setWeatherData(data);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    interval = window.setInterval(() => {
+      requestWeatherFromAPI(geoLocations[city].lat, geoLocations[city].lon)
+        .then((data) => {
+          setWeatherData(data);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }, 1000);
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, []);
 
   return (
