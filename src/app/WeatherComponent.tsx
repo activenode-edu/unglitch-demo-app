@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
-import { requestWeatherFromAPI } from "@/weather-api/getCurrentWeather";
+import {
+  WeatherDataReturn,
+  requestWeatherFromAPI,
+} from "@/weather-api/getCurrentWeather";
 
 type CitiesSupported = "New York" | "Berlin";
 
 type WeatherRequestType = "Temperature" | "Windspeed" | "Humidity";
-
-type CurrentWeater = {
-  windspeed: number;
-  temperature: number;
-  humidity: number;
-};
 
 const geoLocations = {
   "New York": {
@@ -36,19 +33,17 @@ export const WeatherComponent = ({
   city: CitiesSupported;
   type: WeatherRequestType;
 }) => {
-  const geoData = geoLocations[city];
   const [isLoading, setIsLoading] = useState(true);
-  const [weatherData, setWeatherData] = useState<CurrentWeater | null>(null);
+  const [weatherData, setWeatherData] = useState<WeatherDataReturn | null>(
+    null
+  );
 
   useEffect(() => {
     setIsLoading(true);
-    requestWeatherFromAPI(geoData.lat, geoData.lon)
+
+    requestWeatherFromAPI(geoLocations[city].lat, geoLocations[city].lon)
       .then((data) => {
-        setWeatherData({
-          windspeed: data.wind,
-          temperature: data.temperature,
-          humidity: data.humidity,
-        });
+        setWeatherData(data);
       })
       .finally(() => {
         setIsLoading(false);
@@ -65,7 +60,9 @@ export const WeatherComponent = ({
 
       <p className="card-content ">
         <span className="text-xl font-bold text-fuchsia-800">
-          {weatherData?.[type.toLowerCase() as keyof CurrentWeater]}
+          {type === "Humidity" && weatherData?.humidity}
+          {type === "Temperature" && weatherData?.temperature}
+          {type === "Windspeed" && weatherData?.windspeed}
         </span>
 
         <WeatherUnit type={type} />

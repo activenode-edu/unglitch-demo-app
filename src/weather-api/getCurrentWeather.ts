@@ -1,4 +1,13 @@
-export const requestWeatherFromAPI = async (lat: number, long: number) => {
+export type WeatherDataReturn = {
+  temperature: number;
+  humidity: number;
+  windspeed: number;
+};
+
+export const requestWeatherFromAPI = async (
+  lat: number,
+  long: number
+): Promise<WeatherDataReturn> => {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&timezone=CET`;
 
   const weatherData = (await fetch(url).then((res) => res.json())) as {
@@ -25,10 +34,10 @@ export const requestWeatherFromAPI = async (lat: number, long: number) => {
 
   // console.log("currentWeatherIndex", currentWeatherIndex, currentDateString);
 
-  const currentWeather = {
+  const currentWeather: WeatherDataReturn = {
     temperature: weatherData.hourly.temperature_2m[currentWeatherIndex],
     humidity: weatherData.hourly.relativehumidity_2m[currentWeatherIndex],
-    wind: weatherData.hourly.windspeed_10m[currentWeatherIndex],
+    windspeed: weatherData.hourly.windspeed_10m[currentWeatherIndex],
   };
 
   return currentWeather;
