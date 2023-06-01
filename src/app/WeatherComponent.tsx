@@ -39,10 +39,8 @@ export const WeatherComponent = ({
   );
 
   useEffect(() => {
-    setIsLoading(true);
-    let interval: number;
-
-    interval = window.setInterval(() => {
+    const refreshWeater = () => {
+      setIsLoading(true);
       requestWeatherFromAPI(geoLocations[city].lat, geoLocations[city].lon)
         .then((data) => {
           setWeatherData(data);
@@ -50,7 +48,12 @@ export const WeatherComponent = ({
         .finally(() => {
           setIsLoading(false);
         });
-    }, 1000);
+    };
+
+    let interval: number;
+
+    refreshWeater();
+    interval = window.setInterval(refreshWeater, 5000);
 
     return () => {
       if (interval) {
