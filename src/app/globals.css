@@ -30,7 +30,7 @@ body {
 }
 
 .card-title {
-  @apply mb-2 text-lg font-medium leading-tight text-neutral-800  text-center;
+  @apply mt-3 mb-2 text-lg font-medium leading-tight text-neutral-800  text-center;
 }
 
 .card-content {

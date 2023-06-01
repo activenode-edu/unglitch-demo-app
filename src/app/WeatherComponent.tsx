@@ -4,10 +4,18 @@ import {
 } from "@/weather-api/getCurrentWeather";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { useQuery } from "react-query";
 
 type CitiesSupported = "New York" | "Berlin";
 
 type WeatherRequestType = "Temperature" | "Windspeed" | "Humidity";
+
+let GlobalWeatherData: {
+  [k in "Berlin" | "New York"]: null | WeatherDataReturn;
+} = {
+  Berlin: null,
+  "New York": null,
+};
 
 const geoLocations = {
   "New York": {
@@ -33,52 +41,37 @@ export const WeatherComponent = ({
   city: CitiesSupported;
   type: WeatherRequestType;
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [weatherData, setWeatherData] = useState<WeatherDataReturn | null>(
-    null
-  );
+  const weatherQuery = useQuery({
+    queryKey: ["weather", city],
+    queryFn: async () => {
+      return requestWeatherFromAPI(
+        geoLocations[city].lat,
+        geoLocations[city].lon
+      );
+    },
+    refetchInterval: 5000,
+  });
 
-  useEffect(() => {
-    const refreshWeater = () => {
-      setIsLoading(true);
-      requestWeatherFromAPI(geoLocations[city].lat, geoLocations[city].lon)
-        .then((data) => {
-          setWeatherData(data);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    };
-
-    let interval: number;
-
-    refreshWeater();
-    interval = window.setInterval(refreshWeater, 5000);
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, []);
+  const weatherData = weatherQuery.data;
 
   return (
-    <div className="card">
-      {isLoading && <LoadingSpinner />}
+    <div className="relative mb-2">
+      <div className="card">
+        <h5 className="card-title">
+          {type} in {city}
+        </h5>
 
-      <h5 className="card-title">
-        {type} in {city}
-      </h5>
+        <p className="card-content text-center">
+          <span className="text-xl font-bold text-fuchsia-800">
+            {type === "Humidity" && weatherData?.humidity}
+            {type === "Temperature" && weatherData?.temperature}
+            {type === "Windspeed" && weatherData?.windspeed}
+          </span>
 
-      <p className="card-content ">
-        <span className="text-xl font-bold text-fuchsia-800">
-          {type === "Humidity" && weatherData?.humidity}
-          {type === "Temperature" && weatherData?.temperature}
-          {type === "Windspeed" && weatherData?.windspeed}
-        </span>
-
-        <WeatherUnit type={type} />
-      </p>
+          <WeatherUnit type={type} />
+        </p>
+      </div>
+      {!!weatherQuery.isFetching && <LoadingSpinner />}
     </div>
   );
 };
