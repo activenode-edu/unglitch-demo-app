@@ -3,11 +3,8 @@ import {
   requestWeatherFromAPI,
 } from "@/weather-api/getCurrentWeather";
 import { useEffect, useState } from "react";
-import { LoadingSpinner } from "./LoadingSpinner";
-
-type CitiesSupported = "New York" | "Berlin";
-
-type WeatherRequestType = "Temperature" | "Windspeed" | "Humidity";
+import { LoadingSpinner } from "./utils/LoadingSpinner";
+import { CitiesSupported, WeatherRequestType } from "./utils/types";
 
 const geoLocations = {
   "New York": {
@@ -70,7 +67,7 @@ export const WeatherComponent = ({
         {type} in {city}
       </h5>
 
-      <p className="card-content ">
+      <p className="card-content text-center">
         <span className="text-xl font-bold text-fuchsia-800">
           {type === "Humidity" && weatherData?.humidity}
           {type === "Temperature" && weatherData?.temperature}
