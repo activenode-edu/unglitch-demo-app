@@ -30,27 +30,27 @@ export const WeatherComponent = ({
   city: CitiesSupported;
   type: WeatherRequestType;
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(0);
   const [weatherData, setWeatherData] = useState<WeatherDataReturn | null>(
     null
   );
 
   useEffect(() => {
-    const refreshWeater = () => {
-      setIsLoading(true);
+    const refreshWeather = () => {
+      setIsLoading((loading) => loading + 1);
       requestWeatherFromAPI(geoLocations[city].lat, geoLocations[city].lon)
         .then((data) => {
           setWeatherData(data);
         })
         .finally(() => {
-          setIsLoading(false);
+          setIsLoading((loading) => loading - 1);
         });
     };
 
     let interval: number;
 
-    refreshWeater();
-    interval = window.setInterval(refreshWeater, 5000);
+    refreshWeather();
+    interval = window.setInterval(refreshWeather, 5000);
 
     return () => {
       if (interval) {
@@ -61,7 +61,7 @@ export const WeatherComponent = ({
 
   return (
     <div className="card">
-      {isLoading && <LoadingSpinner />}
+      {!!isLoading && <LoadingSpinner />}
 
       <h5 className="card-title">
         {type} in {city}
