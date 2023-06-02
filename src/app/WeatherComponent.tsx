@@ -5,6 +5,7 @@ import {
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "./utils/LoadingSpinner";
 import { CitiesSupported, WeatherRequestType } from "./utils/types";
+import { useQuery } from "react-query";
 
 const geoLocations = {
   "New York": {
@@ -30,38 +31,22 @@ export const WeatherComponent = ({
   city: CitiesSupported;
   type: WeatherRequestType;
 }) => {
-  const [isLoading, setIsLoading] = useState(0);
-  const [weatherData, setWeatherData] = useState<WeatherDataReturn | null>(
-    null
-  );
+  const weatherQuery = useQuery({
+    queryKey: ["weather", city],
+    queryFn: async () => {
+      return requestWeatherFromAPI(
+        geoLocations[city].lat,
+        geoLocations[city].lon
+      );
+    },
+    refetchInterval: 5000,
+  });
 
-  useEffect(() => {
-    const refreshWeather = () => {
-      setIsLoading((loading) => loading + 1);
-      requestWeatherFromAPI(geoLocations[city].lat, geoLocations[city].lon)
-        .then((data) => {
-          setWeatherData(data);
-        })
-        .finally(() => {
-          setIsLoading((loading) => loading - 1);
-        });
-    };
-
-    let interval: number;
-
-    refreshWeather();
-    interval = window.setInterval(refreshWeather, 5000);
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, []);
+  const weatherData = weatherQuery.data;
 
   return (
-    <div className="card">
-      {!!isLoading && <LoadingSpinner />}
+    <div className="card mb-3">
+      {!!weatherQuery.isFetching && <LoadingSpinner />}
 
       <h5 className="card-title">
         {type} in {city}

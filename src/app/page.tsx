@@ -1,22 +1,19 @@
 "use client";
 
+import { QueryClient, QueryClientProvider } from "react-query";
 import { WeatherComponent } from "./WeatherComponent";
+import { useState } from "react";
+import { CardManager } from "./CardManager";
 
 export default function Home() {
+  const [client] = useState(() => new QueryClient());
+
   return (
-    <main className="flex min-h-screen flex-col items-center gap-3 p-24">
-      <WeatherComponent city="New York" type="Temperature" />
-
-      <WeatherComponent city="New York" type="Windspeed" />
-
-      <WeatherComponent city="New York" type="Humidity" />
-
-      <div className="bg-indigo-800 flex flex-col gap-3 p-3 rounded-lg">
-        <h2 className="text-lg font-bold">Windspeed only</h2>
-        <WeatherComponent city="New York" type="Windspeed" />
-
-        <WeatherComponent city="Berlin" type="Windspeed" />
-      </div>
-    </main>
+    <QueryClientProvider client={client}>
+      <main className="flex min-h-screen flex-col items-center gap-3 p-24">
+        <CardManager />
+        {/* <WeatherComponent city="New York" type="Temperature" /> */}
+      </main>
+    </QueryClientProvider>
   );
 }
