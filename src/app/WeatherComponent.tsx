@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { LoadingSpinner } from "./utils/LoadingSpinner";
 import { CitiesSupported, WeatherRequestType } from "./utils/types";
 import { useQuery } from "react-query";
+import { useFetchData } from "./utils/store";
 
 const geoLocations = {
   "New York": {
@@ -31,22 +32,33 @@ export const WeatherComponent = ({
   city: CitiesSupported;
   type: WeatherRequestType;
 }) => {
-  const weatherQuery = useQuery({
-    queryKey: ["weather", city],
-    queryFn: async () => {
+  const unglitchWeather = useFetchData(
+    async () => {
       return requestWeatherFromAPI(
         geoLocations[city].lat,
         geoLocations[city].lon
       );
     },
-    refetchInterval: 5000,
-  });
+    {
+      token: `weather_${city}`,
+      refreshInterval: 5000,
+      data: (s) => s.weatherData[city],
+      onSuccess(update, data) {
+        update((s) => ({
+          weatherData: {
+            ...s.weatherData,
+            [city]: data,
+          },
+        }));
+      },
+    }
+  );
 
-  const weatherData = weatherQuery.data;
+  const weatherData = unglitchWeather.data;
 
   return (
     <div className="card mb-3">
-      {!!weatherQuery.isFetching && <LoadingSpinner />}
+      {!!unglitchWeather.isFetching && <LoadingSpinner />}
 
       <h5 className="card-title">
         {type} in {city}

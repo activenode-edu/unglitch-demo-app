@@ -3,40 +3,23 @@ import { WeatherComponent } from "./WeatherComponent";
 import { AddCardForm } from "./utils/AddCardForm";
 import { WeatherRequestType } from "./utils/types";
 import { CitiesSupported } from "./utils/types";
-
-const cards: Array<{
-  city: CitiesSupported;
-  type: WeatherRequestType;
-}> = [
-  {
-    city: "Berlin",
-    type: "Windspeed",
-  },
-];
+import { update, useStore } from "./utils/store";
 
 export const CardManager = () => {
-  const cardQuery = useQuery({
-    queryKey: ["cards"],
-    queryFn: async () => cards,
-  });
-
-  const mutationFn = useMutation({
-    mutationFn: async (obj: {
-      city: CitiesSupported;
-      type: WeatherRequestType;
-    }) => {
-      cards.push(obj);
-    },
-  });
+  const [cards] = useStore((state) => state.cards);
 
   return (
     <div>
       <AddCardForm
         onAdd={(city, type) => {
-          mutationFn.mutate({ city, type });
+          update((state) => {
+            return {
+              cards: [...state.cards, { city, type }],
+            };
+          });
         }}
       />
-      {cardQuery.data?.map((c, index) => {
+      {cards.map((c, index) => {
         return <WeatherComponent key={index} city={c.city} type={c.type} />;
       })}
     </div>
