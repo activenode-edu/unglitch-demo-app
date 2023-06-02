@@ -4,6 +4,13 @@ export type WeatherDataReturn = {
   windspeed: number;
 };
 
+const waitWeatherDataReturn = (weatherData: WeatherDataReturn) =>
+  new Promise<WeatherDataReturn>((res) => {
+    setTimeout(() => {
+      res(weatherData);
+    }, 300);
+  });
+
 export const requestWeatherFromAPI = async (
   lat: number,
   long: number
@@ -40,5 +47,5 @@ export const requestWeatherFromAPI = async (
     windspeed: weatherData.hourly.windspeed_10m[currentWeatherIndex],
   };
 
-  return currentWeather;
+  return waitWeatherDataReturn(currentWeather);
 };
