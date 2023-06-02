@@ -5,6 +5,7 @@ import {
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { useQuery } from "react-query";
+import { useFetchData } from "./store";
 
 type CitiesSupported = "New York" | "Berlin";
 
@@ -41,18 +42,30 @@ export const WeatherComponent = ({
   city: CitiesSupported;
   type: WeatherRequestType;
 }) => {
-  const weatherQuery = useQuery({
-    queryKey: ["weather", city],
-    queryFn: async () => {
+  const weatherData = useFetchData(
+    async (update) => {
       return requestWeatherFromAPI(
         geoLocations[city].lat,
         geoLocations[city].lon
-      );
+      ).then((data) => {
+        update((state) => {
+          return {
+            weatherData: {
+              ...state.weatherData,
+              [city]: data,
+            },
+          };
+        });
+      });
     },
-    refetchInterval: 5000,
-  });
-
-  const weatherData = weatherQuery.data;
+    {
+      token: `weather_${city}`,
+      data: (state) => {
+        return state.weatherData[city];
+      },
+      refreshInterval: 5000,
+    }
+  );
 
   return (
     <div className="relative mb-2">
@@ -63,15 +76,15 @@ export const WeatherComponent = ({
 
         <p className="card-content text-center">
           <span className="text-xl font-bold text-fuchsia-800">
-            {type === "Humidity" && weatherData?.humidity}
-            {type === "Temperature" && weatherData?.temperature}
-            {type === "Windspeed" && weatherData?.windspeed}
+            {type === "Humidity" && weatherData.data?.humidity}
+            {type === "Temperature" && weatherData.data?.temperature}
+            {type === "Windspeed" && weatherData.data?.windspeed}
           </span>
 
           <WeatherUnit type={type} />
         </p>
       </div>
-      {!!weatherQuery.isFetching && <LoadingSpinner />}
+      {!!weatherData.isFetching && <LoadingSpinner />}
     </div>
   );
 };

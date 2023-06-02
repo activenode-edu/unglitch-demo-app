@@ -3,43 +3,27 @@
 import { useMutation, useQuery } from "react-query";
 import { AddCard } from "./AddCard";
 import { WeatherComponent } from "./WeatherComponent";
-
-let cardState: Array<{
-  city: "New York" | "Berlin";
-  type: "Temperature" | "Windspeed" | "Humidity";
-}> = [
-  {
-    city: "New York",
-    type: "Temperature",
-  },
-];
+import { update, useStore } from "./store";
 
 export const Cards = () => {
-  const cardQuery = useQuery({
-    queryKey: ["weatherCards"],
-    queryFn: async () => {
-      return cardState;
-    },
-  });
-
-  const addCardMutation = useMutation({
-    mutationFn: async (cityTypeObj: any) => {
-      cardState.push(cityTypeObj);
-    },
+  const [cards] = useStore((state) => {
+    return state.weatherCards;
   });
 
   return (
     <div>
       <AddCard
         onAdd={(city, type) => {
-          addCardMutation.mutate({
-            city,
-            type,
+          update((state) => {
+            return {
+              ...state,
+              weatherCards: [...state.weatherCards, { city, type }],
+            };
           });
         }}
       />
 
-      {cardQuery.data?.map((cardData, key) => {
+      {cards.map((cardData, key) => {
         return (
           <WeatherComponent
             key={key}
